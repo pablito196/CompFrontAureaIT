@@ -275,7 +275,7 @@ export default {
         },
         { text: "Opciones", value: "action", sortable: false, width: "8%" }
       ],
-      listadoCaracteristicas: [{}],
+      listadoCaracteristicas: [],
    
       dialogDelete: false,
       dialog: false,
