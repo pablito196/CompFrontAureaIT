@@ -16,6 +16,9 @@
         class="elevation-1 category-table"
         
       >
+        <template v-slot:item.estado="{ item }">
+          <v-chip :color="getColorEstado(item.estado)" dark>{{ item.estado }}</v-chip>
+        </template>
         <template v-slot:top>
           <v-toolbar flat color="white">
             <v-toolbar-title>Empresas</v-toolbar-title>
@@ -55,6 +58,12 @@
                       </v-flex>
                       <v-flex xs12 sm12 md12>
                         <v-text-field v-model="ciudad" label="Ciudad"></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm12 md12>
+                        <v-select v-model="categoriaempresa"
+                          :items="categoriasEmpresa"
+                          label="Categoría">
+                        </v-select>
                       </v-flex>
                       <v-flex xs12 sm12 md12 v-show="valida">
                         <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v"></div>
@@ -107,12 +116,34 @@
         </template>
 
         <template v-slot:item.action="{ item }">
-          <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
-          <template v-if="item.estado">
-            <v-icon medium color="success" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+          <v-tooltip left>
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on">
+                <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
+              </v-btn>
+            </template>
+            <span>Editar empresa {{item.descripcion}}</span>
+          </v-tooltip> 
+          
+          <template v-if="item.estado==='Activo'">
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+                </v-btn>
+              </template>
+              <span>Desactivar empresa {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
           <template v-else>
-            <v-icon medium color="success" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+                </v-btn>
+              </template>
+              <span>Activar empresa {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
         </template>
 
@@ -139,6 +170,7 @@ export default {
       { text: "Dirección", sortable: false, value: "direccion" },
       { text: "Teléfono", sortable: false, value: "telefono" },
       { text: "Ciudad", sortable: false, value: "ciudad" },
+      { text: "Categoría", align: "left", sortable: true, value: "categoriaempresa.descripcion" },
       { text: "Estado", sortable: false, value: "estado" },
       { text: "Opciones", value: "action", sortable: false, width: "8%" }
     ],
@@ -150,8 +182,10 @@ export default {
     direccion:'',
     telefono:'',
     ciudad:'',
+    categoriaempresa:'',
     valida:0,
     validaMensaje:[],
+    categoriasEmpresa:[],
     adModal:0,
     adAccion:0,
     adNombre:'',
@@ -178,15 +212,43 @@ export default {
 
   created() {
     this.listar();
+    this.selectCategoriaEmpresa();
   },
 
   methods: {
 
+    selectCategoriaEmpresa(){
+      let me=this;
+      let categoriaArray=[];
+      let header = {"Token":this.$store.state.token};
+      let configuracion = {headers : header};
+      axios.get('categoriaempresa/list',configuracion).then(function (response){
+        categoriaArray=response.data;
+        categoriaArray.map(function(x){
+          me.categoriasEmpresa.push({text:x.descripcion, value:x._id});
+        });
+      }).catch(function(error){
+        console.log(error);
+      });
+    },
+    getColorEstado (estado) {
+        if (estado == 'Activo') return 'green'
+        else if (estado == 'Inactivo') return 'red'
+        
+    },
     listar(){
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
       axios.get('empresa/list',configuracion).then(function (response){
+        for (var i=0;i<response.data.length;i++){
+          if(response.data[i].estado==1){
+            response.data[i].estado = 'Activo';
+          }else{
+            response.data[i].estado = 'Inactivo';
+          }
+        
+        }
         me.empresas=response.data;
       }).catch(function(error){
         console.log(error);
@@ -199,6 +261,7 @@ export default {
       this.direccion='';
       this.telefono='';
       this.ciudad='';
+      this.categoriaempresa='',
       this.valida=0;
       this.validaMensaje=[];
       this.editedIndex=-1;
@@ -235,7 +298,7 @@ export default {
       }
       if(this.editedIndex >-1){
         //codigo para editar
-        axios.put('empresa/update',{'_id':this._id,'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad},configuracion)
+        axios.put('empresa/update',{'_id':this._id, 'categoriaempresa':this.categoriaempresa,'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad},configuracion)
         .then(function(response){
           me.limpiar();
           me.close();
@@ -246,7 +309,7 @@ export default {
         });
       } else {
         //codigo para guardar
-        axios.post('empresa/add',{'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad},configuracion)
+        axios.post('empresa/add',{'categoriaempresa':this.categoriaempresa,'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad},configuracion)
         .then(function(response){
           me.limpiar();
           me.close();
@@ -266,6 +329,11 @@ export default {
       this.direccion=item.direccion;
       this.telefono=item.telefono;
       this.ciudad=item.ciudad;
+      if(item.categoriaempresa != null)
+      {
+        this.categoriaempresa=item.categoriaempresa._id;
+      }
+        
       this.dialog = true;
       this.editedIndex = 1;
     },

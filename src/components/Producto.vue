@@ -19,12 +19,7 @@
       >
         <template v-slot:top>
           <v-toolbar flat color="white">
-            <!--<v-toolbar-title>Productos</v-toolbar-title>
-            <v-divider
-                class="mx-2"
-                inset
-                vertical
-            ></v-divider>-->
+           
             <v-spacer></v-spacer>
             <v-text-field v-if="verNuevo==0" class="text-xs-center" v-model="search" append-icon="search" 
                 label="Búsqueda" single-line hide-details></v-text-field>
@@ -94,7 +89,7 @@
           <v-tooltip left>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon medium color="success" class="mr-2" @click="listarCaracteristicasProducto(item)">more</v-icon>
+                <v-icon medium color="success" class="mr-2" @click="establecerCategoriaProducto(item)">more</v-icon>
               </v-btn>
             </template>
             <span>Añadir características</span>
@@ -178,7 +173,7 @@
           </v-flex >
           <v-flex xs12 sm12 md12 v-show="validaDetalleCaracteristica">
               <div class="red--text" v-for="v in validaMensajeDetalleCaracteristica" :key="v" v-text="v"></div>
-            </v-flex>
+          </v-flex>
           <v-flex xs12 sm2 md2 lg2 x12>
             <v-btn small fab dark @click=" agregarDetalle()" color="teal">
               <v-icon dark>add</v-icon>
@@ -187,36 +182,32 @@
           <!--inicio detalle caracteristica -->
           <v-flex xs12 sm12 md12 lg12 xl12>
             <template>
-                            
-                            <v-data-table
-                              :headers="headersCaracteristicaProducto"
-                              :items="detalleCaracteristicaProducto"
-                              class="elevation-1"
-                              hide-default-footer
-                            >
-                              
-                              <template v-slot:item.actions="{ item }">
+              <v-data-table
+                :headers="headersCaracteristicaProducto"
+                :items="detalleCaracteristicaProducto"
+                class="elevation-1"
+                hide-default-footer
+              >
+              <template v-slot:item.actions="{ item }">
                                 
-                                <v-icon color="teal" 
-                                  medium
-                                  @click="deleteItem(item)"
-                                >
-                                  delete
-                                </v-icon>
-                              </template>
-                              <template slot="no-data">
-                                    <h3>No hay características agregadas para el producto.</h3>
-                                </template>
-                            </v-data-table>
+                <v-icon color="teal" 
+                  medium
+                   @click="deleteItem(item)"
+                >
+                  delete
+                </v-icon>
+                </template>
+                <template slot="no-data">
+                  <h3>No hay características agregadas para el producto.</h3>
+                </template>
+                
+              </v-data-table>
                             
               </template>
             </v-flex>
             
            <!--fin detalle caracteristica -->
-           <v-flex xs12 sm12 md12 lg12 xl12>
-            <v-btn color="blue darken-1" @click.native="ocultarNuevo()">Cancelar</v-btn>
-            <v-btn color="success" @click="guardarCaracteristicaProducto()" >Guardar características</v-btn>
-          </v-flex>         
+                    
            <v-data-table
               :headers="headersListadoCaracteristicas"
               :items="listadoCaracteristicas"
@@ -227,18 +218,41 @@
               <v-tooltip left>
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on">
-                    <v-icon medium color="success" class="mr-2" @click="deleteItem(item)">delete</v-icon>
+                    <v-icon medium color="success" class="mr-2" @click="eliminarCaracteristicaProductoMostrar(item)">delete</v-icon>
                   </v-btn>
                 </template>
               <span>Eliminar característica</span>
               </v-tooltip>
              </template>
-          
-          
-          
-            
             </v-data-table>
+            <v-flex xs12 sm12 md12 v-show="validaListaCaracteristicas">
+                  <div class="red--text" v-for="v in validaMensajeListaCaracteristicas" :key="v" v-text="v"></div>
+            </v-flex> 
+            <v-flex xs12 sm12 md12 lg12 xl12>
+            <v-btn color="blue darken-1" @click.native="cancelarRegistroCategoria()">Cancelar</v-btn>
+            <v-btn color="success" @click.native="guardarCaracteristicaProducto()" >Guardar características</v-btn>
+          </v-flex>
           
+          <v-dialog v-model="adModalCaracteristica" max-width="290">
+              <v-card>
+                <v-card-title class="headline">
+                  Eliminar característica
+                </v-card-title>
+                <v-card-text>
+                  Esta seguro de eliminar la característica {{adNombreCaracteristica}} ?
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn @click="eliminarCaracteristicaCerrar()" color="green darken-1" >
+                    Cancelar
+                  </v-btn>
+                  <v-btn  @click="eliminarCaracteristicaProducto()" color="orange darken-1" >
+                    Eliminar
+                  </v-btn>
+                  
+                </v-card-actions>
+              </v-card>
+           </v-dialog>
           
         </v-layout>
       </v-container>
@@ -252,7 +266,7 @@ import axios from 'axios';
 export default {
   data: () => ({
     
-      headersCaracteristicaProducto: [
+    headersCaracteristicaProducto: [
       {
         text: 'Valores',
         align: 'start',
@@ -263,25 +277,20 @@ export default {
     ],
     
     headersListadoCaracteristicas: [
-        {
-          text: 'Nombre',
-          align: 'start',
-          value: 'nombre',
-        },
-        { 
-          text: 'Valor', 
-          value: 'valor'
+      {
+        text: 'Nombre',
+        align: 'start',
+        value: 'nombre',
+      },
+      { 
+        text: 'Valor', 
+        value: 'valor'
           //value: [{text:'Valor', value:'category'}]  
-        },
-        { text: "Opciones", value: "action", sortable: false, width: "8%" }
-      ],
-      listadoCaracteristicas: [],
-   
-      dialogDelete: false,
-      dialog: false,
-      search:'',
-      productos:[],
-      headers: [
+      },
+      { text: "Opciones", value: "action", sortable: false, width: "8%" }
+    ],
+
+    headers: [
         { text: "Descripción", align: "left", sortable: true, value: "descripcion" },
         { text: "Código", align: "left", value: "codigo" },
         { text: "Categoría", align: "left", sortable: true, value: "categoria.descripcion" },
@@ -292,38 +301,49 @@ export default {
         { text: "Precio venta", align: "left", value: "precioVenta" },
         { text: "Estado", sortable: false, value: "estado" },
         { text: "Opciones", value: "action", sortable: false, width: "8%" }
-      ],
+    ],
     
+    listadoCaracteristicas: [],
+    productos:[],
+    categorias:[],
+    medidas:[],
+    presentaciones:[],
+    validaMensaje:[],
+    validaMensajeDetalleCaracteristica:[],
+    validaMensajeListaCaracteristicas:[],
+    detalleCaracteristicaProducto:[],
+    
+   
+    dialogDelete: false,
+    dialog: false,
+    search:'',
     editedIndex: -1,  
     _id:'',
     descripcion:'',
     codigo:'',
     categoria:'',
-    categorias:[],
     medida:'',
-    medidas:[],
     cantidadMedida:0,
     presentacion:'',
-    presentaciones:[],
     cantidadPresentacion:0,
     precioVenta:0,
-
     verNuevo:0,
     verCaracteristicas:0,
     valida:0,
-    validaMensaje:[],
     validaDetalleCaracteristica:0,
-    validaMensajeDetalleCaracteristica:[],
+    validaListaCaracteristicas:0,
     adModal:0,
     adAccion:0,
     adDescripcion:'',
     adId:'',
-
     nombreCaracteristica:'',
     valorCaracteristica:'',
     nombreProducto:'',
    
-    detalleCaracteristicaProducto:[],
+    adModalCaracteristica:0,
+    adNombreCaracteristica:'',
+    adIdCaracteristica:0,
+    
   }),
 
   computed: {
@@ -353,15 +373,159 @@ export default {
 
   methods: {
 
-    ///
-    
-    
+    //OPERACIONES CON CARACTERISTICAS
     deleteItem (item) {
       const index = this.detalleCaracteristicaProducto.indexOf(item)
-      confirm('Are you sure you want to delete this item?') && this.detalleCaracteristicaProducto.splice(index, 1)
+      this.detalleCaracteristicaProducto.splice(index, 1)
     },
-    ///
+    
+    eliminarCaracteristicaProductoMostrar(item){
+      this.adModalCaracteristica=1;
+      this.adNombreCaracteristica=item.nombre;
+      this.adIdCaracteristica=item._id;
+      
+    },
 
+    eliminarCaracteristicaCerrar(){
+      this.adModalCaracteristica=0;
+    },
+
+    eliminarCaracteristicaProducto(){
+      let me=this;
+      let header = {"Token":this.$store.state.token};
+      let configuracion = {headers : header};
+      console.log('id caracteristica: ',this.adIdCaracteristica);
+      axios.delete('caracteristicaproducto/remove',{'_id':this.adIdCaracteristica},configuracion)
+        .then(function(response){
+          console.log(response.data);
+          me.adModalCaracteristica=0;
+          me.adNombreCaracteristica='';
+          me.adIdCaracteristica='';
+          me.listarCaracteristicasProducto(this._id)
+        })
+        .catch(function(error){
+          console.log(error);
+        });
+    },
+
+    establecerCategoriaProducto(item){
+      this.limpiar();
+      this.caracteristicasProducto = item;
+      this._id = item._id;
+      this.nombreProducto = item.descripcion;
+      this.verCaracteristicas=1;
+      this.listarCaracteristicasProducto(this._id)
+    },
+
+    listarCaracteristicasProducto(id){
+      let me=this;
+      let header = {"Token":this.$store.state.token};
+      let configuracion = {headers : header};
+      axios.get('caracteristicaproducto/list?valor='+id,configuracion).then(function (response){
+        //console.log(response.data);
+        me.listadoCaracteristicas=response.data;
+      }).catch(function(error){
+        console.log(error);
+      });
+      
+    },
+
+    validarDetalleCaracteristica(){
+      this.validaDetalleCaracteristica=0;
+      this.validaMensajeDetalleCaracteristica=[];
+      if(this.nombreCaracteristica.length<1 || this.nombreCaracteristica.length>100){
+        this.validaMensajeDetalleCaracteristica.push('El nombre de la característica debe tener entre 1 y 100 caracteres');
+      }
+      if(this.valorCaracteristica.length<1 || this.valorCaracteristica.length>80){
+        this.validaMensajeDetalleCaracteristica.push('El valor de la característica debe tener entre 1 y 80 caracteres');
+      }
+      
+      if(this.validaMensajeDetalleCaracteristica.length){
+        this.validaDetalleCaracteristica=1;
+      }
+      return this.validaDetalleCaracteristica;
+    },
+    agregarDetalle(){
+      if(this.validarDetalleCaracteristica()){
+        return;
+      }
+      this.detalleCaracteristicaProducto.push(
+      {
+        nombre:this.valorCaracteristica,
+      } );
+      this.valorCaracteristica='';
+    },
+
+    encuentraCaracteristicaRepetida(nombreCaracteristica){
+      
+      let sw=0;
+      for (var i=0;i<this.listadoCaracteristicas.length;i++){
+        if(this.listadoCaracteristicas[i].nombre==nombreCaracteristica){
+          sw=true;
+          
+        }
+      }
+      return sw;
+    },
+
+    validarListaCaracteristicas(){
+      this.validaListaCaracteristicas=0;
+      this.validaMensajeListaCaracteristicas=[];
+      if(this.encuentraCaracteristicaRepetida(this.nombreCaracteristica)){
+        this.validaMensajeListaCaracteristicas.push('La característica ya se encuentra registrada');
+      }
+      
+      if(this.validaMensajeListaCaracteristicas.length){
+        this.validaListaCaracteristicas=1;
+      }
+      return this.validaListaCaracteristicas;
+    },
+
+    guardarCaracteristicaProducto(){
+      let me=this;
+      let header = {"Token":this.$store.state.token};
+      let configuracion = {headers : header};
+      let idProducto = this._id;
+      
+      if(this.validarListaCaracteristicas()){
+        this.detalleCaracteristicaProducto=[];
+        return;
+      }
+      
+       axios.post('caracteristicaproducto/add',{
+         'producto':this._id,
+         'nombre':this.nombreCaracteristica,
+         'valor':this.detalleCaracteristicaProducto
+        },configuracion)
+        .then(function(response){
+          
+          me.listarCaracteristicasProducto(idProducto);
+          me.limpiarDetalleCaracteristicaProducto();
+          
+          
+        })
+        .catch(function(error){
+          console.log(error);
+        });
+      
+    
+    },
+    limpiarDetalleCaracteristicaProducto(){
+      this._id='';
+      this.nombreCaracteristica='';
+      this.detalleCaracteristicaProducto=[];
+      this.valorCaracteristica='';
+    },
+
+    cancelarRegistroCategoria(){
+
+      this.limpiarDetalleCaracteristicaProducto();     
+      this.limpiar();
+      this.verNuevo=0;
+    
+    },
+
+    /////// OPERACIONES CON PRODUCTO
     selectCategoria(){
       let me=this;
       let categoriaArray=[];
@@ -406,93 +570,9 @@ export default {
         console.log(error);
       });
     },
-  //OPERACIONES CON CARACTERISTICAS
+  
 
-    listarCaracteristicasProducto(item){
-      this.limpiar();
-      this._id = item._id;
-      this.nombreProducto = item.descripcion;
-      this.verCaracteristicas=1;
-      ////
-      let me=this;
-      let header = {"Token":this.$store.state.token};
-      let configuracion = {headers : header};
-      axios.get('caracteristicaproducto/list?valor='+this._id,configuracion).then(function (response){
-        console.log(response.data);
-        me.listadoCaracteristicas=response.data;
-      }).catch(function(error){
-        console.log(error);
-      });
-      //
-    },
 
-    validarDetalleCaracteristica(){
-      this.validaDetalleCaracteristica=0;
-      this.validaMensajeDetalleCaracteristica=[];
-      if(this.nombreCaracteristica.length<1 || this.nombreCaracteristica.length>100){
-        this.validaMensajeDetalleCaracteristica.push('El nombre de la característica debe tener entre 1 y 100 caracteres');
-      }
-      if(this.valorCaracteristica.length<1 || this.valorCaracteristica.length>80){
-        this.validaMensajeDetalleCaracteristica.push('El valor de la característica debe tener entre 1 y 80 caracteres');
-      }
-      
-      if(this.validaMensajeDetalleCaracteristica.length){
-        this.validaDetalleCaracteristica=1;
-      }
-      return this.validaDetalleCaracteristica;
-    },
-    agregarDetalle(){
-      if(this.validarDetalleCaracteristica()){
-        return;
-      }
-      this.detalleCaracteristicaProducto.push(
-      {
-        nombre:this.valorCaracteristica,
-      } );
-      this.valorCaracteristica='';
-    },
-    /*encuentraCaracteristicaRepetida(nombreCaracteristica){
-      let sw=0;
-      for (var i=0;i<this.detalleCaracteristicaProducto.length;i++){
-        if(this.detalleCaracteristicaProducto[i].name==nombreCaracteristica){
-          sw=true;
-        }
-      }
-      return sw;
-    },*/
-
-    guardarCaracteristicaProducto(){
-      let me=this;
-      let header = {"Token":this.$store.state.token};
-      let configuracion = {headers : header};
-      
-      /*if(this.encuentraCaracteristicaRepetida()){
-        return;
-      }*/
-      
-       axios.post('caracteristicaproducto/add',{
-         'producto':this._id,
-         'nombre':this.nombreCaracteristica,
-         'valor':this.detalleCaracteristicaProducto
-        },configuracion)
-        .then(function(response){
-          me.limpiarDetalleCaracteristicaProducto();
-          me.listarCaracteristicaProducto(this.item);
-        })
-        .catch(function(error){
-          console.log(error);
-        });
-      
-    
-    },
-    limpiarDetalleCaracteristicaProducto(){
-      this._id='';
-      this.nombreCaracteristica='';
-      this.detalleCaracteristicaProducto=[];
-      
-    },
-
-/////// OPERACIONES CON PRODUCTO
 
     listar(){
       let me=this;

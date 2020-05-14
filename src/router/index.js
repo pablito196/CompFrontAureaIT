@@ -9,6 +9,7 @@ import Categoria from '../components/Categoria'
 import Medida from '../components/Medida'
 import Presentacion from '../components/Presentacion'
 import Producto from '../components/Producto'
+import CategoriaEmpresa from '../components/CategoriaEmpresa'
 
 Vue.use(VueRouter)
 
@@ -47,6 +48,16 @@ Vue.use(VueRouter)
       //libre:true
       administrador:true,
       usuario:true 
+    }
+  },
+  {
+    path: '/categoriaempresa',
+    name: 'CategoriaEmpresa',
+    component: CategoriaEmpresa,
+    meta:{
+      //libre:true
+      administrador:true,
+      //usuario:true 
     }
   },
   {

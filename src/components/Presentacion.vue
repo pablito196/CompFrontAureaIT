@@ -16,6 +16,10 @@
         class="elevation-1 category-table"
         
       >
+        <template v-slot:item.estado="{ item }">
+          <v-chip :color="getColorEstado(item.estado)" dark>{{ item.estado }}</v-chip>
+        </template>
+
         <template v-slot:top>
           <v-toolbar flat color="white">
             <v-toolbar-title>Presentaciones de producto</v-toolbar-title>
@@ -96,12 +100,34 @@
         </template>
 
         <template v-slot:item.action="{ item }">
-          <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
-          <template v-if="item.estado">
-            <v-icon medium color="success" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+          <v-tooltip left>
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on">
+                <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
+              </v-btn>
+            </template>
+            <span>Editar presentación {{item.descripcion}}</span>
+          </v-tooltip> 
+          
+          <template v-if="item.estado==='Activo'">
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+                </v-btn>
+              </template>
+              <span>Desactivar presentación {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
           <template v-else>
-            <v-icon medium color="success" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+                </v-btn>
+              </template>
+              <span>Activar presentación {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
         </template>
 
@@ -166,11 +192,25 @@ export default {
 
   methods: {
 
+    getColorEstado (estado) {
+        if (estado == 'Activo') return 'green'
+        else if (estado == 'Inactivo') return 'red'
+        
+    },
+
     listar(){
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
       axios.get('presentacion/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
+        for (var i=0;i<response.data.length;i++){
+          if(response.data[i].estado==1){
+            response.data[i].estado = 'Activo';
+          }else{
+            response.data[i].estado = 'Inactivo';
+          }
+        
+        }
         me.presentaciones=response.data;
       }).catch(function(error){
         console.log(error);

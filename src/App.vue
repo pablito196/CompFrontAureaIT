@@ -79,6 +79,18 @@
                 </v-list-item-content>
               </v-list-item>
         </template>
+        <template v-if="esAdministrador">    
+              <v-list-item :to="{name:'CategoriaEmpresa'}">
+                <v-list-item-action>
+                  <v-icon>table_chart</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Categoría de empresas
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+        </template>
         <template v-if="esAdministrador || esUsuario">    
               <v-list-item :to="{name:'Categoria'}">
                 <v-list-item-action>

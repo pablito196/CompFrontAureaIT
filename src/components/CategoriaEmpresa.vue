@@ -22,7 +22,7 @@
 
         <template v-slot:top>
           <v-toolbar flat color="white">
-            <v-toolbar-title>Categorias de producto</v-toolbar-title>
+            <v-toolbar-title>Categorias de empresas</v-toolbar-title>
             <v-divider
                 class="mx-2"
                 inset
@@ -202,8 +202,8 @@ export default {
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.get('categoria/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
-        
+      axios.get('categoriaempresa/list',configuracion).then(function (response){
+      
       for (var i=0;i<response.data.length;i++){
         if(response.data[i].estado==1){
           response.data[i].estado = 'Activo';
@@ -230,7 +230,7 @@ export default {
       this.valida=0;
       this.validaMensaje=[];
       if(this.descripcion.length<1 || this.descripcion.length>100){
-        this.validaMensaje.push('La descripción de la categoría debe tener entre 1 y 100 caracteres')
+        this.validaMensaje.push('La descripción de la categoría debe tener entre 1 y 50 caracteres')
       }
       if(this.validaMensaje.length){
         this.valida=1;
@@ -247,7 +247,7 @@ export default {
       }
       if(this.editedIndex >-1){
         //codigo para editar
-        axios.put('categoria/update',{'_id':this._id, 'descripcion':this.descripcion},configuracion)
+        axios.put('categoriaempresa/update',{'_id':this._id, 'descripcion':this.descripcion},configuracion)
         .then(function(response){
           me.limpiar();
           me.close();
@@ -258,7 +258,7 @@ export default {
         });
       } else {
         //codigo para guardar
-        axios.post('categoria/add',{'empresa':this.$store.state.usuario.empresa,'descripcion':this.descripcion},configuracion)
+        axios.post('categoriaempresa/add',{'empresa':this.$store.state.usuario.empresa,'descripcion':this.descripcion},configuracion)
         .then(function(response){
           me.limpiar();
           me.close();
@@ -303,7 +303,7 @@ export default {
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.put('categoria/activate',{'_id':this.adId},configuracion)
+      axios.put('categoriaempresa/activate',{'_id':this.adId},configuracion)
         .then(function(response){
           me.adModal=0;
           me.adAccion=0;
@@ -320,7 +320,7 @@ export default {
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.put('categoria/deactivate',{'_id':this.adId},configuracion)
+      axios.put('categoriaempresa/deactivate',{'_id':this.adId},configuracion)
         .then(function(response){
           me.adModal=0;
           me.adAccion=0;
