@@ -338,10 +338,7 @@ export default {
       this.dialog = false;
     },
 
-    /*remove() {
-      this.categories.splice(this.editedIndex, 1);
-      this.close();
-    }*/
+    
   }
 };
 </script>

@@ -32,7 +32,7 @@
                 label="Búsqueda" single-line hide-details></v-text-field>
             <v-spacer></v-spacer>
 
-            <v-dialog v-model="dialog" max-width="500px">
+            <v-dialog v-model="dialog" max-width="600px">
               <template v-slot:activator="{ on }">
                 <v-btn color="success" dark class="mb-2" v-on="on">Nueva Empresa</v-btn>
               </template>
@@ -40,34 +40,50 @@
                 <v-card-title>
                   <span style="margin-bottom: 40px;" class="headline">{{ formTitle }}</span>
                 </v-card-title>
-
+                <form @submit.prevent="guardar" enctype="multipart/form-data">
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout wrap>
+                      
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="nombre" label="Nombre"></v-text-field>
+                        <v-text-field id="nombre" v-model="nombre" label="Nombre" required></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="nit" label="Nit"></v-text-field>
+                        <v-text-field id="nit" v-model="nit" label="Nit"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="direccion" label="Dirección"></v-text-field>
+                        <v-text-field id="direccion" v-model="direccion" label="Dirección"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="telefono" label="Teléfono"></v-text-field>
+                        <v-text-field id="telefono" v-model="telefono" label="Teléfono"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="ciudad" label="Ciudad"></v-text-field>
+                        <v-text-field id="ciudad" v-model="ciudad" label="Ciudad"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12>
-                        <v-select v-model="categoriaempresa"
+                        <v-select id="categoriaempresa" v-model="categoriaempresa"
                           :items="categoriasEmpresa"
                           label="Categoría">
                         </v-select>
                       </v-flex>
+                      <v-flex xs12 sm12 md12>
+                        <v-btn raised class="primary" @click="onPickFile">Cargar logo </v-btn>
+                            <input
+                              type="file"
+                              style="display: none"
+                              ref="fileInput"
+                              accept="image/*"
+                              @change="onFilePicked"
+                              name="image"
+                        />
+                      </v-flex>
+                      <v-flex xs12 sm12 md12>
+                        <img :src="imageUrl" height="150">
+                      </v-flex>
                       <v-flex xs12 sm12 md12 v-show="valida">
                         <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v"></div>
-                      </v-flex>     
+                      </v-flex>
+                          
                     </v-layout>
                   </v-container>
                 </v-card-text>
@@ -80,11 +96,12 @@
                     </div>
                     <div v-else-if="dialogDelete === false">
                       <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                      <v-btn color="blue darken-1" text @click="guardar">Guardar</v-btn>
+                      <!--<v-btn type="submit" color="blue darken-1" text @click="guardar">Guardar</v-btn>-->
+                      <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
                     </div>
                 </v-card-actions>
-
-              </v-card>
+                </form> 
+                </v-card>
             </v-dialog>
             <v-dialog v-model="adModal" max-width="290">
               <v-card>
@@ -189,8 +206,14 @@ export default {
     adModal:0,
     adAccion:0,
     adNombre:'',
-    adId:''
+    adId:'',
+
+    file:'',
+    imageUrl:'',
+    image:null
   }),
+
+  
 
   computed: {
     formTitle() {
@@ -265,6 +288,9 @@ export default {
       this.valida=0;
       this.validaMensaje=[];
       this.editedIndex=-1;
+      this.image=null;
+      this.imageUrl='';
+
     },
     validar(){
       this.valida=0;
@@ -290,6 +316,7 @@ export default {
       return this.valida;
     },
     guardar(){
+      //console.log('entra a guardar');
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
@@ -309,7 +336,25 @@ export default {
         });
       } else {
         //codigo para guardar
-        axios.post('empresa/add',{'categoriaempresa':this.categoriaempresa,'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad},configuracion)
+        //
+        if(!this.image)
+        {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('categoriaempresa',this.categoriaempresa);
+        formData.append('nombre',this.nombre);
+        formData.append('nit',this.nit);
+        formData.append('direccion',this.direccion);
+        formData.append('telefono',this.telefono);
+        formData.append('ciudad',this.ciudad);
+        formData.append('image',this.image);
+
+        //console.log(formData.image);
+        axios.post('empresa/add',formData,configuracion)
+        //axios.post('empresa/add',{'categoriaempresa':this.categoriaempresa,'nombre':this.nombre,'nit':this.nit,'direccion':this.direccion,'telefono':this.telefono,'ciudad':this.ciudad, 'image':this.image},configuracion)
+        
         .then(function(response){
           me.limpiar();
           me.close();
@@ -398,10 +443,25 @@ export default {
       this.dialog = false;
     },
 
-    /*remove() {
-      this.categories.splice(this.editedIndex, 1);
-      this.close();
-    }*/
+    onPickFile(){
+      this.$refs.fileInput.click();
+    },
+    onFilePicked(event){
+      //this.file = this.$refs.file.files[0];
+      const files = event.target.files;
+      let filename = files[0].name;
+      if(filename.lastIndexOf('.') <=0){
+        return alert('Por favor seleccione un archivo válido!!');
+      }
+      const fileReader = new FileReader();
+      fileReader.addEventListener('load', () => {
+        this.imageUrl = fileReader.result;
+      })
+      fileReader.readAsDataURL(files[0]);
+      this.image = files[0];
+    },
+
+    
   }
 };
 </script>

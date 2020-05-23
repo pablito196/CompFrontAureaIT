@@ -17,6 +17,10 @@
         class="elevation-1 category-table"
         v-if="verNuevo==0"
       >
+        <template v-slot:item.estado="{ item }">
+          <v-chip :color="getColorEstado(item.estado)" dark>{{ item.estado }}</v-chip>
+        </template>
+
         <template v-slot:top>
           <v-toolbar flat color="white">
            
@@ -25,35 +29,53 @@
                 label="Búsqueda" single-line hide-details></v-text-field>
             <v-spacer></v-spacer>
             <v-btn color="success" v-if="verNuevo==0"  @click="mostrarNuevo()" dark class="mb-2" >Nuevo Producto</v-btn>
-            <!--<v-dialog v-model="dialog" max-width="500px">
-              
+            
+            <v-dialog v-model="dialogCargarImagenes" max-width="650px">
               <v-card>
                 <v-card-title>
-                  <span style="margin-bottom: 40px;" class="headline">{{ formTitle }}</span>
+                  <span style="margin-bottom: 40px;" class="headline">Cargar imagen del producto</span>
                 </v-card-title>
 
+                <form @submit.prevent="guardarImagen" enctype="multipart/form-data">
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout wrap>
                       
+                      <v-flex xs12 sm12 md12>
+                        <v-btn raised class="primary" @click="onPickFile">Cargar imagen </v-btn>
+                            <input
+                              type="file"
+                              style="display: none"
+                              ref="fileInput"
+                              accept="image/*"
+                              @change="onFilePicked"
+                              name="image"
+                        />
+                      </v-flex>
+                      <v-flex xs12 sm12 md12>
+                        <img :src="imageUrl" height="550" >
+                      </v-flex>
+                      
+                          
                     </v-layout>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <div class="flex-grow-1"></div>
-                    <div v-if="dialogDelete === true">
-                      <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                      <v-btn color="blue darken-1" text @click="remove">Eliminar</v-btn>
-                    </div>
-                    <div v-else-if="dialogDelete === false">
-                      <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                      <v-btn color="blue darken-1" text @click="guardar">Guardar</v-btn>
+                    
+                    <div >
+                      <v-btn color="blue darken-1" text @click="cerrarCargadoImagenes">Cerrar</v-btn>
+                      <v-btn color="blue darken-1" text @click="cancelarCargadoImagenes">Cancelar</v-btn>
+                      <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
                     </div>
                 </v-card-actions>
+                </form> 
+
+                
 
               </v-card>
-            </v-dialog>-->
+            </v-dialog>
 
             <v-dialog v-model="adModal" max-width="290">
               <v-card>
@@ -98,17 +120,40 @@
           <v-tooltip left>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
+                <v-icon medium color="success" class="mr-2" @click="cargarImagenesProducto(item)">add_photo_alternate</v-icon>
+              </v-btn>
+            </template>
+            <span>Cargar imágenes producto</span>
+          </v-tooltip>
+
+          <v-tooltip left>
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on">
                 <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
               </v-btn>
             </template>
             <span>Editar producto</span>
           </v-tooltip>
           
-          <template v-if="item.estado">
-            <v-icon medium color="success" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+          <template v-if="item.estado==='Activo'">
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+                </v-btn>
+              </template>
+              <span>Desactivar producto {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
           <template v-else>
-            <v-icon medium color="success" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+                </v-btn>
+              </template>
+              <span>Activar producto {{item.descripcion}}</span>
+            </v-tooltip>
           </template>
         </template>
 
@@ -205,13 +250,13 @@
                             
               </template>
             </v-flex>
-            
+           
            <!--fin detalle caracteristica -->
-                    
+             <v-divider></v-divider>        
            <v-data-table
               :headers="headersListadoCaracteristicas"
               :items="listadoCaracteristicas"
-              
+              class="elevation-1"
             >
              <template v-slot:item.action="{ item }">
           
@@ -285,7 +330,6 @@ export default {
       { 
         text: 'Valor', 
         value: 'valor'
-          //value: [{text:'Valor', value:'category'}]  
       },
       { text: "Opciones", value: "action", sortable: false, width: "8%" }
     ],
@@ -313,7 +357,7 @@ export default {
     validaMensajeListaCaracteristicas:[],
     detalleCaracteristicaProducto:[],
     
-   
+    dialogCargarImagenes:false,
     dialogDelete: false,
     dialog: false,
     search:'',
@@ -343,11 +387,16 @@ export default {
     adModalCaracteristica:0,
     adNombreCaracteristica:'',
     adIdCaracteristica:0,
+
+    file:'',
+    image:null,
+    imageUrl:'',
+    cantidadImagenes:0,
     
   }),
 
   computed: {
-    formTitle() {
+    /*formTitle() {
       if (this.dialogDelete) {
         return "Eliminar Categoría";
       } else if (this.editedIndex === -1) {
@@ -355,7 +404,7 @@ export default {
       } else if (this.editedIndex > -1) {
         return "Editar Categoría";
       }  
-    }
+    }*/
   },
 
   watch: {
@@ -372,7 +421,95 @@ export default {
   },
 
   methods: {
+    //OPERACIONES CON IMAGENES PRODUCTO
+    guardarImagen(){
+      if(!this.image)
+      {
+        alert('Debe cargarse una imagen...')
+        return;
+      }
+        
+        let me=this;
+        let header = {"Token":this.$store.state.token};
+        let configuracion = {headers : header};
 
+        const formData = new FormData();
+        
+        formData.append('image',this.image);
+        formData.append('producto',this._id);
+        axios.post('imagenproducto/add',formData,configuracion)
+        
+        
+        .then(function(response){
+          me.limpiarImagenesCargadas();
+          me.dialogCargarImagenes= false;
+          
+        })
+        .catch(function(error){
+          console.log(error);
+        });
+    
+    },
+    limpiarImagenesCargadas(){
+      //this._id='';
+      this.file='',
+      this.image=null,
+      this.imageUrl=''
+      //this.cantidadImagenes=0
+      
+    },
+    cancelarCargadoImagenes(){
+      this.limpiarImagenesCargadas();
+    },
+    cerrarCargadoImagenes(){
+      this.limpiarImagenesCargadas();
+      this.dialogCargarImagenes=false;
+    },
+    cargarImagenesProducto: function(item){
+      this.cantidadImagenes=0;
+      this._id=item._id;
+      var me = this;
+      axios.get('imagenproducto/queryimagenes?producto='+this._id).then(function (response){
+        if(response.data!=null){
+          me.cantidadImagenes=response.data;
+          
+          if(me.cantidadImagenes>=3)
+          {
+            alert('Ya se cargó la cantidad de imágenes permitidas para este producto');
+            me.dialogCargarImagenes = false;
+          }
+          else
+          {
+            me.dialogCargarImagenes = true;
+          }
+          
+        }
+        
+        
+
+      }).catch(function(error){
+        console.log(error);
+      });
+
+
+    },
+    onPickFile(){
+      this.$refs.fileInput.click();
+    },
+    onFilePicked(event){
+      //this.file = this.$refs.file.files[0];
+      const files = event.target.files;
+      let filename = files[0].name;
+      if(filename.lastIndexOf('.') <=0){
+        return alert('Por favor seleccione un archivo válido!!');
+      }
+      const fileReader = new FileReader();
+      fileReader.addEventListener('load', () => {
+        this.imageUrl = fileReader.result;
+      })
+      fileReader.readAsDataURL(files[0]);
+      this.image = files[0];
+    },
     //OPERACIONES CON CARACTERISTICAS
     deleteItem (item) {
       const index = this.detalleCaracteristicaProducto.indexOf(item)
@@ -383,7 +520,6 @@ export default {
       this.adModalCaracteristica=1;
       this.adNombreCaracteristica=item.nombre;
       this.adIdCaracteristica=item._id;
-      
     },
 
     eliminarCaracteristicaCerrar(){
@@ -394,14 +530,12 @@ export default {
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      console.log('id caracteristica: ',this.adIdCaracteristica);
-      axios.delete('caracteristicaproducto/remove',{'_id':this.adIdCaracteristica},configuracion)
+      axios.delete('caracteristicaproducto/remove?valor='+this.adIdCaracteristica,configuracion)
         .then(function(response){
-          console.log(response.data);
           me.adModalCaracteristica=0;
           me.adNombreCaracteristica='';
           me.adIdCaracteristica='';
-          me.listarCaracteristicasProducto(this._id)
+          me.listarCaracteristicasProducto(me._id)
         })
         .catch(function(error){
           console.log(error);
@@ -421,9 +555,23 @@ export default {
       let me=this;
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
+      let valores='';
+      me.listadoCaracteristicas=[];
       axios.get('caracteristicaproducto/list?valor='+id,configuracion).then(function (response){
-        //console.log(response.data);
-        me.listadoCaracteristicas=response.data;
+        for (var i=0;i<response.data.length;i++){
+          let _id = response.data[i]._id; 
+          let _nombreCaracteristica = response.data[i].nombre;
+          let _valor = response.data[i].valor;
+          for(var j=0;j<_valor.length;j++){
+            if(valores!='')
+              valores = valores+', '+ _valor[j].nombre;
+            else  
+              valores = valores+ _valor[j].nombre;
+          }
+          me.listadoCaracteristicas.push({'_id':_id,'nombre':_nombreCaracteristica, 'valor':valores});
+          valores='';
+        }
+        
       }).catch(function(error){
         console.log(error);
       });
@@ -571,7 +719,11 @@ export default {
       });
     },
   
-
+    getColorEstado (estado) {
+        if (estado == 'Activo') return 'green'
+        else if (estado == 'Inactivo') return 'red'
+        
+    },
 
 
     listar(){
@@ -579,6 +731,13 @@ export default {
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
       axios.get('producto/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
+        for (var i=0;i<response.data.length;i++){
+          if(response.data[i].estado==1){
+            response.data[i].estado = 'Activo';
+          }else{
+            response.data[i].estado = 'Inactivo';
+          }
+        }
         me.productos=response.data;
       }).catch(function(error){
         console.log(error);
