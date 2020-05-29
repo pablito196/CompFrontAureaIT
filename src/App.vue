@@ -4,12 +4,15 @@
       v-model="drawer"
       :clipped="$vuetify.breakpoint.lgAndUp"
       app
+      color ="cyan lighten-1 "
+      dark
+      
     >
       <v-list dense>
         <template>
-          <v-list-item :to="{name:'Home'}">
+          <v-list-item :to="{name:'Home'}" active-class="border">
             <v-list-item-action>
-              <v-icon>home</v-icon>
+              <v-icon>dashboard</v-icon>
             </v-list-item-action>
             <v-list-item-title>
               Inicio
@@ -17,7 +20,7 @@
           </v-list-item>
         </template>
         <template>
-          <v-list-item :to="{name:'Login'}">
+          <v-list-item :to="{name:'Login'}" active-class="border">
             <v-list-item-action>
               <v-icon>home</v-icon>
             </v-list-item-action>
@@ -30,7 +33,7 @@
           
             
               
-              <v-list-item :to="{name:'ListaEmpresas'}">
+              <v-list-item :to="{name:'ListaEmpresas'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -44,7 +47,7 @@
         </template>
         <template>  
           
-            <v-list-item :to="{name:''}">
+            <v-list-item :to="{name:''}" active-class="border">
               <v-list-item-action>
                 <v-icon>table_chart</v-icon>
               </v-list-item-action>
@@ -56,7 +59,7 @@
             </v-list-item>
         </template> 
         <template>   
-            <v-list-item :to="{name:''}">
+            <v-list-item :to="{name:''}" active-class="border">
               <v-list-item-action>
                 <v-icon>table_chart</v-icon>
               </v-list-item-action>
@@ -68,9 +71,9 @@
             </v-list-item>
         </template>
         <template v-if="esAdministrador">    
-              <v-list-item :to="{name:'Empresa'}">
+              <v-list-item :to="{name:'Empresa'}" active-class="border">
                 <v-list-item-action>
-                  <v-icon>table_chart</v-icon>
+                  <v-icon>folder</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
@@ -80,7 +83,7 @@
               </v-list-item>
         </template>
         <template v-if="esAdministrador">    
-              <v-list-item :to="{name:'CategoriaEmpresa'}">
+              <v-list-item :to="{name:'CategoriaEmpresa'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -91,8 +94,9 @@
                 </v-list-item-content>
               </v-list-item>
         </template>
+        
         <template v-if="esAdministrador || esUsuario">    
-              <v-list-item :to="{name:'Categoria'}">
+              <v-list-item :to="{name:'Categoria'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -104,7 +108,7 @@
               </v-list-item>
         </template>
         <template v-if="esAdministrador || esUsuario">    
-              <v-list-item :to="{name:'Medida'}">
+              <v-list-item :to="{name:'Medida'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -116,7 +120,7 @@
               </v-list-item>
         </template>
         <template v-if="esAdministrador || esUsuario">    
-              <v-list-item :to="{name:'Presentacion'}">
+              <v-list-item :to="{name:'Presentacion'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -128,7 +132,7 @@
               </v-list-item>
         </template>
         <template v-if="esAdministrador || esUsuario">    
-              <v-list-item :to="{name:'Producto'}">
+              <v-list-item :to="{name:'Producto'}" active-class="border">
                 <v-list-item-action>
                   <v-icon>table_chart</v-icon>
                 </v-list-item-action>
@@ -156,8 +160,9 @@
         <span class="hidden-sm-and-down">Compras en linea</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      Salir
       <v-btn @click="salir()" icon v-if="logueado">
-        <v-icon>logout</v-icon> Salir
+        <v-icon>exit_to_app</v-icon> 
       </v-btn>
       
     </v-app-bar>
@@ -173,16 +178,25 @@
       </v-container>
     </v-content>
     
-    <v-footer height="auto">
-      <v-layout justify="center">
-        <v-flex text-xs-center>
-          <v-card flat tile color="primary" class="white--text">
-            <v-card-text class="white--text pt-0">
-              AureaIT &copy;2020
-            </v-card-text>
-          </v-card>
-        </v-flex>
-      </v-layout>
+    <v-footer
+      dark
+      padless
+      app
+      inset
+    
+    >
+      <v-card
+        class="flex"
+        flat
+        tile
+        color="cyan darken-1"
+        :elevation="10"
+      >
+
+        <v-card-text class="py-2 white--text text-center">
+          {{ new Date().getFullYear() }} — <strong>&copy; AureaIT</strong>
+       </v-card-text>
+      </v-card>
     </v-footer>
     
   </v-app>
@@ -221,3 +235,8 @@ export default {
 
 };
 </script>
+<style scoped>
+.border {
+  border-left: 4px solid #0ba518;
+}
+</style>

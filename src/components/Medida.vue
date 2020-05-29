@@ -32,7 +32,7 @@
                 label="Búsqueda" single-line hide-details></v-text-field>
             <v-spacer></v-spacer>
 
-            <v-dialog v-model="dialog" max-width="500px">
+            <v-dialog v-model="dialog" max-width="600px">
               <template v-slot:activator="{ on }">
                 <v-btn color="success" dark class="mb-2" v-on="on">Nueva Medida</v-btn>
               </template>
@@ -45,7 +45,7 @@
                   <v-container grid-list-md>
                     <v-layout wrap>
                       <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="descripcion" label="Descripción"></v-text-field>
+                        <v-text-field v-model="descripcion" label="Descripción" prepend-icon="library_books" ></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm12 md12 v-show="valida">
                         <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v"></div>

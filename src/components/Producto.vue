@@ -164,37 +164,37 @@
       <v-container grid-list-sm class="pa-4 white" v-if="verNuevo">
         <v-layout row wrap>
           <v-flex xs12 sm8 md8 lg8 xl8>
-            <v-text-field v-model="descripcion" label="Descripción"></v-text-field>
+            <v-text-field v-model="descripcion" label="Descripción" prepend-icon="library_books" ></v-text-field>
           </v-flex>
           <v-flex xs12 sm4 md4 lg4 xl4>
-            <v-text-field v-model="codigo" label="Código"></v-text-field>
+            <v-text-field v-model="codigo" label="Código" prepend-icon="assignment"></v-text-field>
           </v-flex>
           <v-flex xs12 sm8 md8 lg8 xl8>
-            <v-select v-model="categoria"
+            <v-select v-model="categoria" prepend-icon="library_books" 
               :items="categorias"
               label="Categoría">
             </v-select>
           </v-flex>
           <v-flex xs12 sm6 md6 lg6 xl6>
-            <v-select v-model="medida"
+            <v-select v-model="medida" prepend-icon="ballot"
               :items="medidas"
               label="Medida">
             </v-select>
           </v-flex>
           <v-flex xs12 sm2 md2 lg2 xl2>
-            <v-text-field v-model="cantidadMedida" label="Cantidad de la unidad de medida"></v-text-field>
+            <v-text-field v-model="cantidadMedida" label="Cantidad de la unidad de medida" prepend-icon="plus_one"></v-text-field>
           </v-flex>
           <v-flex xs12 sm6 md6 lg6 xl6>
-            <v-select v-model="presentacion"
+            <v-select v-model="presentacion" prepend-icon="local_library" 
               :items="presentaciones"
               label="Presentación">
             </v-select>
           </v-flex>
           <v-flex xs12 sm2 md2 lg2 xl2>
-            <v-text-field v-model="cantidadPresentacion" label="Cantidad en la presentación"></v-text-field>
+            <v-text-field v-model="cantidadPresentacion" label="Cantidad en la presentación" prepend-icon="plus_one"></v-text-field>
           </v-flex>
            <v-flex xs12 sm4 md4 lg4 xl4>
-            <v-text-field v-model="precioVenta" label="Precio de venta"></v-text-field>
+            <v-text-field v-model="precioVenta" label="Precio de venta" prepend-icon="monetization_ont"></v-text-field>
           </v-flex>
           <v-flex xs12 sm12 md12 v-show="valida">
             <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v"></div>
