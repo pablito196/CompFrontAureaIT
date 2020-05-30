@@ -39,8 +39,8 @@ export default {
         ingresar(){
             axios.post('usuario/login',{email:this.email, password:this.password})
             .then(respuesta =>{
-                console.log(respuesta.data.user)
-                console.log(respuesta.data.tokenReturn)
+                /*console.log(respuesta.data.user)
+                console.log(respuesta.data.tokenReturn)*/
                 return respuesta.data
             })
             .then(data =>{

@@ -170,13 +170,13 @@
             <v-text-field v-model="codigo" label="Código" prepend-icon="assignment"></v-text-field>
           </v-flex>
           <v-flex xs12 sm8 md8 lg8 xl8>
-            <v-select v-model="categoria" prepend-icon="library_books" 
+            <v-select v-model="categoria" prepend-icon="assignment" 
               :items="categorias"
               label="Categoría">
             </v-select>
           </v-flex>
           <v-flex xs12 sm6 md6 lg6 xl6>
-            <v-select v-model="medida" prepend-icon="ballot"
+            <v-select v-model="medida" prepend-icon="collections"
               :items="medidas"
               label="Medida">
             </v-select>
@@ -185,7 +185,7 @@
             <v-text-field v-model="cantidadMedida" label="Cantidad de la unidad de medida" prepend-icon="plus_one"></v-text-field>
           </v-flex>
           <v-flex xs12 sm6 md6 lg6 xl6>
-            <v-select v-model="presentacion" prepend-icon="local_library" 
+            <v-select v-model="presentacion" prepend-icon="layers" 
               :items="presentaciones"
               label="Presentación">
             </v-select>

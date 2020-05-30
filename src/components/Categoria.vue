@@ -22,7 +22,7 @@
 
         <template v-slot:top>
           <v-toolbar flat color="white">
-            <v-toolbar-title>Categorias de producto</v-toolbar-title>
+            <v-toolbar-title>Categorías de producto</v-toolbar-title>
             <v-divider
                 class="mx-2"
                 inset
