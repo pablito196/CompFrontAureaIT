@@ -1,7 +1,7 @@
 <template>
   <v-layout align-start>  
     <v-flex>
-      <h2>Productos</h2>
+      <h2 class="subheading grey--text">Productos</h2>
       <v-data-table
         :headers="headers"
         :items="productos"
@@ -15,7 +15,7 @@
           nextIcon: 'mdi-plusne'
         }"    
         class="elevation-1 category-table"
-        v-if="verNuevo==0"
+        v-if="verNuevo==0 && verCaracteristicas==0"
       >
         <template v-slot:item.estado="{ item }">
           <v-chip :color="getColorEstado(item.estado)" dark>{{ item.estado }}</v-chip>
@@ -28,7 +28,7 @@
             <v-text-field v-if="verNuevo==0" class="text-xs-center" v-model="search" append-icon="search" 
                 label="Búsqueda" single-line hide-details></v-text-field>
             <v-spacer></v-spacer>
-            <v-btn color="success" v-if="verNuevo==0"  @click="mostrarNuevo()" dark class="mb-2" >Nuevo Producto</v-btn>
+            <v-btn color="red lighten-2" dark v-if="verNuevo==0"  @click="mostrarNuevo()" class="mb-2" >Nuevo Producto</v-btn>
             
             <v-dialog v-model="dialogCargarImagenes" max-width="650px">
               <v-card>
@@ -94,10 +94,10 @@
                   <v-btn @click="activarDesactivarCerrar()" color="green darken-1" >
                     Cancelar
                   </v-btn>
-                  <v-btn v-if="adAccion==1" @click="activar()" color="orange darken-1" >
+                  <v-btn v-if="adAccion==1" @click="activar()" color="cyan darken-1" dark >
                     Activar
                   </v-btn>
-                  <v-btn v-if="adAccion==2" @click="desactivar()" color="orange darken-1" >
+                  <v-btn v-if="adAccion==2" @click="desactivar()" color="cyan darken-1" dark >
                     Desactivar
                   </v-btn>
                 </v-card-actions>
@@ -111,7 +111,7 @@
           <v-tooltip left>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon medium color="success" class="mr-2" @click="establecerCategoriaProducto(item)">more</v-icon>
+                <v-icon medium color="cyan darken-2" class="mr-2" @click="establecerCategoriaProducto(item)">more</v-icon>
               </v-btn>
             </template>
             <span>Añadir características</span>
@@ -120,7 +120,7 @@
           <v-tooltip left>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon medium color="success" class="mr-2" @click="cargarImagenesProducto(item)">add_photo_alternate</v-icon>
+                <v-icon medium color="cyan darken-2" class="mr-2" @click="cargarImagenesProducto(item)">add_photo_alternate</v-icon>
               </v-btn>
             </template>
             <span>Cargar imágenes producto</span>
@@ -129,7 +129,7 @@
           <v-tooltip left>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon medium color="success" class="mr-2" @click="editItem(item)">edit</v-icon>
+                <v-icon medium color="cyan darken-2" class="mr-2" @click="editItem(item)">edit</v-icon>
               </v-btn>
             </template>
             <span>Editar producto</span>
@@ -139,7 +139,7 @@
             <v-tooltip left>
               <template v-slot:activator="{ on }">
                 <v-btn icon v-on="on">
-                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(2,item)">block</v-icon>
+                  <v-icon medium color="cyan darken-2" class="mr-2" @click="activarDesactivarMostrar(2,item)">block</v-icon>
                 </v-btn>
               </template>
               <span>Desactivar producto {{item.descripcion}}</span>
@@ -149,7 +149,7 @@
             <v-tooltip left>
               <template v-slot:activator="{ on }">
                 <v-btn icon v-on="on">
-                  <v-icon medium color="success" class="mr-2" @click="activarDesactivarMostrar(1,item)">check</v-icon>
+                  <v-icon medium color="cyan darken-2" class="mr-2" @click="activarDesactivarMostrar(1,item)">check</v-icon>
                 </v-btn>
               </template>
               <span>Activar producto {{item.descripcion}}</span>
@@ -158,7 +158,7 @@
         </template>
 
         <template v-slot:no-data>
-          <v-btn color="primary" @click="listar()">Resetear</v-btn>
+          <v-btn color="red lighten-2" @click="listar()">Resetear</v-btn>
         </template>
       </v-data-table>
       <v-container grid-list-sm class="pa-4 white" v-if="verNuevo">
@@ -172,7 +172,15 @@
           <v-flex xs12 sm8 md8 lg8 xl8>
             <v-select v-model="categoria" prepend-icon="assignment" 
               :items="categorias"
-              label="Categoría">
+              label="Categoría"
+              @change="selectSubcategoria()">
+              
+            </v-select>
+          </v-flex>
+          <v-flex xs12 sm8 md8 lg8 xl8>
+            <v-select v-model="subcategoria" prepend-icon="integration_instructions" 
+              :items="subcategorias"
+              label="Subcategoría">
             </v-select>
           </v-flex>
           <v-flex xs12 sm6 md6 lg6 xl6>
@@ -200,8 +208,8 @@
             <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v"></div>
           </v-flex>
           <v-flex xs12 sm12 md12 lg12 xl12>
-            <v-btn color="blue darken-1" @click.native="ocultarNuevo()">Cancelar</v-btn>
-            <v-btn color="success" @click.native="guardar()">Guardar</v-btn>
+            <v-btn color="red lighten-2" dark @click.native="ocultarNuevo()">Cancelar</v-btn>
+            <v-btn color="cyan darken-1" dark @click.native="guardar()">Guardar</v-btn>
           </v-flex>   
         </v-layout>
       </v-container>
@@ -209,6 +217,7 @@
       
       <v-container grid-list-sm class="pa-4 white" v-if="verCaracteristicas">
         <h3>Características del producto: </h3> <h2> {{this.nombreProducto}}</h2>
+        <h4>Código: </h4> <h4> {{this.codigo}}</h4>
         <v-layout row wrap>
           <v-flex xs12 sm6 md6 lg6 xl6>
             <v-text-field v-model="nombreCaracteristica" label="Característica"></v-text-field>
@@ -230,68 +239,73 @@
               <v-data-table
                 :headers="headersCaracteristicaProducto"
                 :items="detalleCaracteristicaProducto"
-                class="elevation-1"
+                class="elevation-2 mt-6"
                 hide-default-footer
               >
-              <template v-slot:item.actions="{ item }">
+                <template v-slot:item.actions="{ item }">
                                 
-                <v-icon color="teal" 
-                  medium
-                   @click="deleteItem(item)"
-                >
+                  <v-icon color="teal" 
+                    medium
+                    @click="deleteItem(item)"
+                  >
                   delete
-                </v-icon>
+                  </v-icon>
                 </template>
                 <template slot="no-data">
                   <h3>No hay características agregadas para el producto.</h3>
                 </template>
-                
               </v-data-table>
                             
-              </template>
-            </v-flex>
+            </template>
+          </v-flex>
            
            <!--fin detalle caracteristica -->
-             <v-divider></v-divider>        
-           <v-data-table
+          
+          
+          <v-flex xs12 sm12 md12 lg12 xl12 >
+            <template>
+              <v-data-table
               :headers="headersListadoCaracteristicas"
               :items="listadoCaracteristicas"
-              class="elevation-1"
-            >
-             <template v-slot:item.action="{ item }">
+              class="elevation-5 mt-4 mb-4"
+
+              >
+              <template v-slot:item.action="{ item }">
           
-              <v-tooltip left>
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on">
-                    <v-icon medium color="success" class="mr-2" @click="eliminarCaracteristicaProductoMostrar(item)">delete</v-icon>
-                  </v-btn>
-                </template>
-              <span>Eliminar característica</span>
-              </v-tooltip>
-             </template>
-            </v-data-table>
-            <v-flex xs12 sm12 md12 v-show="validaListaCaracteristicas">
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on">
+                      <v-icon medium color="teal" class="mr-2" @click="eliminarCaracteristicaProductoMostrar(item)">delete</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Eliminar característica</span>
+                </v-tooltip>
+              </template>
+              </v-data-table>
+              <v-flex xs12 sm12 md12 v-show="validaListaCaracteristicas">
                   <div class="red--text" v-for="v in validaMensajeListaCaracteristicas" :key="v" v-text="v"></div>
-            </v-flex> 
-            <v-flex xs12 sm12 md12 lg12 xl12>
-            <v-btn color="blue darken-1" @click.native="cancelarRegistroCategoria()">Cancelar</v-btn>
-            <v-btn color="success" @click.native="guardarCaracteristicaProducto()" >Guardar características</v-btn>
+              </v-flex> 
+            </template>
+          </v-flex>
+          <v-flex xs12 sm12 md12 lg12 xl12>
+              <v-btn color="red lighten-2" dark @click.native="cancelarRegistroCategoria()">Salir</v-btn>
+              <v-btn color="cyan darken-1" dark @click.native="guardarCaracteristicaProducto()" >Guardar características</v-btn>
           </v-flex>
           
-          <v-dialog v-model="adModalCaracteristica" max-width="290">
+          <v-dialog v-model="adModalCaracteristica" max-width="320">
               <v-card>
                 <v-card-title class="headline">
                   Eliminar característica
                 </v-card-title>
                 <v-card-text>
-                  Esta seguro de eliminar la característica {{adNombreCaracteristica}} ?
+                  Esta seguro de eliminar la característica <h3> {{adNombreCaracteristica}}?</h3> 
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn @click="eliminarCaracteristicaCerrar()" color="green darken-1" >
+                  <v-btn @click="eliminarCaracteristicaCerrar()" color="red lighten-2" dark>
                     Cancelar
                   </v-btn>
-                  <v-btn  @click="eliminarCaracteristicaProducto()" color="orange darken-1" >
+                  <v-btn  @click="eliminarCaracteristicaProducto()" color="cyan darken-1" dark >
                     Eliminar
                   </v-btn>
                   
@@ -338,6 +352,7 @@ export default {
         { text: "Descripción", align: "left", sortable: true, value: "descripcion" },
         { text: "Código", align: "left", value: "codigo" },
         { text: "Categoría", align: "left", sortable: true, value: "categoria.descripcion" },
+        { text: "Subcategoría", align: "left", sortable: true, value: "subcategoria.descripcion" },
         { text: "Cant. medida", align: "left", value: "cantidadMedida" },
         { text: "Medida", align: "left", sortable: true, value: "medida.descripcion" },
         { text: "Cant. presentación", align: "left", value: "cantidadPresentacion" },
@@ -350,6 +365,7 @@ export default {
     listadoCaracteristicas: [],
     productos:[],
     categorias:[],
+    subcategorias:[],
     medidas:[],
     presentaciones:[],
     validaMensaje:[],
@@ -366,6 +382,7 @@ export default {
     descripcion:'',
     codigo:'',
     categoria:'',
+    subcategoria:'',
     medida:'',
     cantidadMedida:0,
     presentacion:'',
@@ -416,11 +433,13 @@ export default {
   created() {
     this.listar();
     this.selectCategoria();
+    //this.selectSubcategoria();
     this.selectMedida();
     this.selectPresentacion();
   },
 
   methods: {
+    
     //OPERACIONES CON IMAGENES PRODUCTO
     guardarImagen(){
       if(!this.image)
@@ -547,6 +566,7 @@ export default {
       this.caracteristicasProducto = item;
       this._id = item._id;
       this.nombreProducto = item.descripcion;
+      this.codigo = item.codigo;
       this.verCaracteristicas=1;
       this.listarCaracteristicasProducto(this._id)
     },
@@ -679,10 +699,26 @@ export default {
       let categoriaArray=[];
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.get('categoria/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
+      axios.get('categoria/listactivas?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
         categoriaArray=response.data;
         categoriaArray.map(function(x){
           me.categorias.push({text:x.descripcion, value:x._id});
+        });
+      }).catch(function(error){
+        console.log(error);
+      });
+    },
+
+    selectSubcategoria(){
+      let me=this;
+      let subcategoriaArray=[];
+      let header = {"Token":this.$store.state.token};
+      let configuracion = {headers : header};
+      me.subcategorias = [];
+      axios.get('subcategoria/listporcategoria?valor='+this.categoria,configuracion).then(function (response){
+        subcategoriaArray=response.data;
+        subcategoriaArray.map(function(x){
+          me.subcategorias.push({text:x.descripcion, value:x._id});
         });
       }).catch(function(error){
         console.log(error);
@@ -694,7 +730,7 @@ export default {
       let medidaArray=[];
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.get('medida/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
+      axios.get('medida/listactivas?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
         medidaArray=response.data;
         medidaArray.map(function(x){
           me.medidas.push({text:x.descripcion, value:x._id});
@@ -709,7 +745,7 @@ export default {
       let presentacionArray=[];
       let header = {"Token":this.$store.state.token};
       let configuracion = {headers : header};
-      axios.get('presentacion/list?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
+      axios.get('presentacion/listactivas?valor='+this.$store.state.usuario.empresa,configuracion).then(function (response){
         presentacionArray=response.data;
         presentacionArray.map(function(x){
           me.presentaciones.push({text:x.descripcion, value:x._id});
@@ -720,8 +756,8 @@ export default {
     },
   
     getColorEstado (estado) {
-        if (estado == 'Activo') return 'green'
-        else if (estado == 'Inactivo') return 'red'
+        if (estado == 'Activo') return 'cyan darken-1'
+        else if (estado == 'Inactivo') return 'red lighten-2'
         
     },
 
@@ -748,6 +784,7 @@ export default {
       this.descripcion='';
       this.codigo='';
       this.categoria='';
+      this.subcategoria='';
       this.medida='';
       this.cantidadMedida=0;
       this.presentacion='';
@@ -769,6 +806,9 @@ export default {
       }
       if(this.categoria.length<1){
         this.validaMensaje.push('Debe seleccionar una categoría para el producto')
+      }
+      if(this.subcategoria.length<1){
+        this.validaMensaje.push('Debe seleccionar una subcategoría para el producto')
       }
       if(this.precioVenta < 1){
         this.validaMensaje.push('Debe asignar un precio al producto')
@@ -799,7 +839,7 @@ export default {
       //console.log('editIndex: ',this.editedIndex);
       if(this.editedIndex >-1){
         //codigo para editar
-        axios.put('producto/update',{'_id':this._id, 'categoria':this.categoria,'descripcion':this.descripcion,
+        axios.put('producto/update',{'_id':this._id, 'categoria':this.categoria, 'subcategoria':this.subcategoria, 'descripcion':this.descripcion,
                   'codigo':this.codigo,'presentacion':this.presentacion,'cantidadPresentacion':this.cantidadPresentacion,'medida':this.medida,
                   'cantidadMedida':this.cantidadMedida,'precioVenta':this.precioVenta},configuracion)
         .then(function(response){
@@ -812,7 +852,7 @@ export default {
         });
       } else {
         //codigo para guardar
-        axios.post('producto/add',{'empresa':this.$store.state.usuario.empresa,'categoria':this.categoria,'descripcion':this.descripcion,
+        axios.post('producto/add',{'empresa':this.$store.state.usuario.empresa,'categoria':this.categoria,'subcategoria':this.subcategoria,'descripcion':this.descripcion,
                   'codigo':this.codigo,'presentacion':this.presentacion,'cantidadPresentacion':this.cantidadPresentacion,'medida':this.medida,
                   'cantidadMedida':this.cantidadMedida,'precioVenta':this.precioVenta},configuracion)
         .then(function(response){
@@ -832,6 +872,11 @@ export default {
       this.descripcion=item.descripcion;
       this.codigo=item.codigo;
       this.categoria=item.categoria._id;
+      if(item.subcategoria!=null){
+        this.selectSubcategoria();
+        this.subcategoria=item.subcategoria._id;
+      }
+        
       this.medida=item.medida._id;
       this.cantidadMedida=item.cantidadMedida;
       this.presentacion=item.presentacion._id;
@@ -901,10 +946,7 @@ export default {
       this.dialog = false;
     },
 
-    /*remove() {
-      this.categories.splice(this.editedIndex, 1);
-      this.close();
-    }*/
+    
   }
 };
 </script>

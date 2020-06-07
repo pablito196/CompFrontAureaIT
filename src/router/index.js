@@ -6,6 +6,7 @@ import Empresa from '../components/Empresa.vue'
 import ListaEmpresas from '../components/ListaEmpresas.vue'
 import Login from '../components/Login'
 import Categoria from '../components/Categoria'
+import Subcategoria from '../components/Subcategoria'
 import Medida from '../components/Medida'
 import Presentacion from '../components/Presentacion'
 import Producto from '../components/Producto'
@@ -44,6 +45,16 @@ Vue.use(VueRouter)
     path: '/categoria',
     name: 'Categoria',
     component: Categoria,
+    meta:{
+      //libre:true
+      administrador:true,
+      usuario:true 
+    }
+  },
+  {
+    path: '/subcategoria',
+    name: 'Subcategoria',
+    component: Subcategoria,
     meta:{
       //libre:true
       administrador:true,

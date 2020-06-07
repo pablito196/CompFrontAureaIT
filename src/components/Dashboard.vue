@@ -1,88 +1,94 @@
 <template>
-  <v-container>
-    <v-layout align-start>
-    <v-flex>
-      <div >
-        <h1 class="subheading grey--text">Pedidos pendientes</h1>
-        <v-container >
-          <v-layout row wrap>
-            
-            
-            <v-flex xs12 sm6 md4 lg3
-              
-              v-for="pedido in pedidos" :key="pedido._id"
-            >
-         
-              <v-card class="ma-3">
-                <v-list-item  >
-                  <v-list-item-avatar
-                    tile
-                    class="mt-n7"
-                  >
-                    <v-sheet color="#03A9F4" width="80" height="80" elevation="10">
-                          <v-icon dark large>store</v-icon>
-                    </v-sheet>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <div class="overline text-right">Total</div>
-                    <v-list-item-title class="headline mb-1 text-right" >{{pedido.total}}</v-list-item-title>
-                    <div><v-divider></v-divider></div>
-                  </v-list-item-content> 
-                </v-list-item>
-                <v-card-text>
-                  <v-icon >person </v-icon> Cliente: {{pedido.cliente.nombre}} <br>
-                  <v-icon>emoji_people</v-icon> Recibe: {{pedido.quienRecibe}} <br>
-                  <v-icon>location_on</v-icon> Ciudad: {{pedido.cliente.ciudad}} <br>
-                  <v-icon>import_contacts</v-icon> Dirección: {{pedido.cliente.direccion}} <br>
-                  <v-icon>phone</v-icon> Teléfono: {{pedido.cliente.telefono}} <br>
-                  <v-icon>event_note</v-icon> Fecha de entrega: {{pedido.fechaEntrega}} <br>
-                </v-card-text>
-               
-                <v-card-actions>
-                        <v-btn outlined color="red" @click="verDetallePedido(pedido)">
-                            <v-icon small left >shopping_cart</v-icon>
-                            <span>Ver detalle</span>
-                        </v-btn>
-                    </v-card-actions>
+  <v-container >
+    <h1 class="subheading grey--text">Pedidos pendientes</h1>
+    <v-layout row wrap v-for="pedido in pedidos" :key="pedido._id"  >
+      <v-flex md4 >
+        
+          <v-container>
+            <v-flex >
+              <v-card class="ma-5 text-center mt-8" shaped elevation="10">
+                <v-avatar class="mt-n8" size="60" elevation="10">
+                  <img src="avatar1.png">
+                </v-avatar>  
+                <v-card-title class="layout justify-center">Cliente: {{pedido.cliente.nombre}} </v-card-title>
+                <v-card-subtitle class="layout justify-center">Recibe: {{pedido.quienRecibe}} </v-card-subtitle>
+                <v-list class="mt-n5">
+                    <v-list-item>
+                      <v-list-item-title class="cyan--text text--darken-1">Ciudad</v-list-item-title>
+                      <v-list-item-title class="cyan--text text--darken-1">Dirección</v-list-item-title>
+                      <v-list-item-title class="cyan--text text--darken-1">Teléfono</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item class="mt-n5">
+                      <v-list-item-subtitle>{{pedido.cliente.ciudad}}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{pedido.cliente.direccion}}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{pedido.cliente.telefono}}</v-list-item-subtitle>
+                    </v-list-item>
+                    
+                </v-list>
+                
               </v-card>
             </v-flex>
-         
-          
+            <v-flex>
+              <v-card class="ma-5 mt-n2" shaped elevation="10">
+                 <v-card-title class="layout justify-center">Pedido</v-card-title>
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-avatar size="10" color="cyan darken-1"></v-list-item-avatar>
+                    <v-list-item-title class="ml-n2">Fecha de entrega</v-list-item-title>
+                    <v-list-item-subtitle>{{pedido.fechaEntrega}} </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-avatar size="10" color="cyan darken-1"></v-list-item-avatar>
+                    <v-list-item-title class="ml-n3">Hora para entrega</v-list-item-title>
+                    <v-list-item-subtitle>{{pedido.horaInicioRango}} - {{pedido.horaFinRango}}</v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-avatar size="10" color="cyan darken-1"></v-list-item-avatar>
+                    <v-list-item-title class="ml-n2">Transporte</v-list-item-title>
+                    <v-list-item-subtitle>{{pedido.transporte}}</v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider></v-divider>
+                  <v-list-item>
+                    <v-list-item-title class="cyan--text text--darken-1">Total Pedido</v-list-item-title>
+                    <v-list-item-subtitle>Bs. {{pedido.total}}</v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-flex>
             
-          
-          </v-layout>
-        </v-container>
-      </div>
-    </v-flex>
-    
-    <v-dialog v-model="dialogDetalle" max-width="700px">
-              
-    <v-card>
-        <v-card-title>
-                  <span style="margin-bottom: 40px;" class="headline">Detalle de pedido</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container grid-list-md>
-                    <v-layout wrap>
-                         <v-card
-      max-width="550"
-      class="mx-auto"
-    >
+          </v-container>
         
-      <v-container>
-        <v-row dense>
-         
-  
-          <v-col
-            v-for="(item, i) in detallePedido"
-            :key="i"
-            cols="12"
-          >
-            <v-card
-              :color="'#1F7087'"
-              dark
-            >
+      </v-flex>
+
+      <v-flex md8>
+        
+
+          <v-container >
+            <v-card >
+              <v-card-title>
+                <span style="margin-bottom: 30px;" class="headline">Detalle de pedido</span>
+          
+              </v-card-title>
+
+              <v-card-text>
+                <v-container grid-list-md>
+                <v-layout wrap>
+                <v-card
+                  max-width="1000"
+                  class="mx-auto"
+                >
+        
+              <v-container>
+                <v-row dense>
+                 <v-col
+                  v-for="(item, i) in pedido.detalles"
+                  :key="i"
+                  cols="12"
+                  >
+                    <v-card
+                      :color="'#1F7087'"
+                      dark
+                    >
                   <div class="d-flex flex-no-wrap justify-space-between">
                     <div>
                       <v-card-title
@@ -117,20 +123,26 @@
                 </v-card-text>
 
                 <v-card-actions>
+                  
                   <div class="flex-grow-1"></div>
                     <div >
-                      <v-btn color="blue darken-1" >Cancelar</v-btn>
-                      <v-btn color="blue darken-1" >Eliminar</v-btn>
+                      <v-btn outlined color="cyan darken-1" >Confirmar pedido</v-btn>
+                      <v-btn outlined color="cyan darken-1" >Eliminar</v-btn>
                     </div>
                     
                 </v-card-actions>
 
               </v-card>
-            </v-dialog>
+          </v-container>
 
 
-
-  </v-layout>
+       
+      </v-flex>
+      
+    </v-layout>
+    
+    
+   
   </v-container>
   
   
@@ -139,9 +151,49 @@
 <script>
 // @ is an alias to /src
 import axios from 'axios';
+const gradients = [
+  ['#222'],
+    ['#42b3f4'],
+    ['red','orange','yelow'],
+    ['purple','violet'],
+    ['#00c6ff','#f0f','#ff0'],
+    ['#f72047','#ffd200','#1feaea'],
+]
 export default {
  
   data : () => ({
+
+    ///
+    items: [
+      {
+        color: '#1F7087',
+        src: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
+        title: 'Supermodel',
+        artist: 'Foster the People',
+      },
+      {
+        color: '#952175',
+        src: 'https://cdn.vuetifyjs.com/images/cards/halcyon.png',
+        title: 'Halcyon Days',
+        artist: 'Ellie Goulding',
+      },
+    ],
+    //
+    ////
+    with:2,
+    radius:10,
+    padding:8,
+    lineCap:'round',
+    gradient:gradients[5],
+    value:[0,2,5,9,5,10,3,5,0,0,1,8,2,9,0],
+    gradientDirection:'top',
+    gradients,
+    fill:false,
+    type:'trend',
+    autoLineWidth:false,
+    arrayEvents:null,
+    date2: new Date().toISOString().substr(0,10),
+    ////
 
     dialogDetalle:false,
     pedido:null,
@@ -357,6 +409,15 @@ export default {
 
     
   }),
+//
+  computed:{
+    theme(){
+      return this.$vuetify.theme.dark ? "dark" : "light";
+    }
+  },
+//
+
+
   created() {
       this.listar();
     },
@@ -385,3 +446,9 @@ export default {
     },
 }
 </script>
+<style scoped>
+.rounded {
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+}
+</style>

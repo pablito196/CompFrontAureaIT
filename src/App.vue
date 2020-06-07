@@ -1,15 +1,13 @@
 <template>
-  <v-app id="app">
-    <v-navigation-drawer
-      v-model="drawer"
-      
-      app
+  <v-app id="app" :style="{background: $vuetify.theme.themes.light.background}">
+    <v-navigation-drawer v-model="drawer" app
       color ="cyan darken-1 "
       dark
       mini-variant
       mini-variant-width="160"
       
     >
+    
       <v-list>
         <v-list-item class="mb-12">
           <v-list-item-action></v-list-item-action>
@@ -43,6 +41,17 @@
            <v-list-item-content>
               <v-icon class="mb-2">assignment</v-icon>
               <v-list-item-subtitle align="center">Categorías producto</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </template>
+
+      <template  v-if="esAdministrador || esUsuario">
+        <v-list flat>
+          <v-list-item router to="/subcategoria">
+           <v-list-item-content>
+              <v-icon class="mb-2">integration_instructions</v-icon>
+              <v-list-item-subtitle align="center">Subcategorías producto</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -103,7 +112,7 @@
         </v-list>
       </template>
 
-      <template  v-if="esAdministrador || esUsuario">
+      <!--<template  v-if="esAdministrador || esUsuario">
         <v-list style="position: aboslute; bottom:0" class="ml-3">
           <v-list-item router to="/login">
            <v-list-item-action>
@@ -114,14 +123,14 @@
            </v-list-item-action>
           </v-list-item>
         </v-list>
-      </template>
+      </template>-->
      
     </v-navigation-drawer>
 
-    <!--<v-app-bar
+    <v-app-bar
       :clipped-left="$vuetify.breakpoint.lgAndUp"
       app
-      color="blue darken-3"
+      color="cyan darken-1"
       dark
     >
       <v-toolbar-title
@@ -129,7 +138,7 @@
         class="ml-0 pl-3"
       >
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <span class="hidden-sm-and-down">Compras en linea</span>
+        <span class="hidden-sm-and-down"></span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       Salir
@@ -137,7 +146,7 @@
         <v-icon>exit_to_app</v-icon> 
       </v-btn>
       
-    </v-app-bar>-->
+    </v-app-bar>
     <v-content>
       <v-container
         fluid
